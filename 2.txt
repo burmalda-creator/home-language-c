@@ -1,5 +1,77 @@
-#include <stdio.h>
-main()
-{
-    printf("hello world \n");
+#!/bin/bash
+cel=()
+far=()
+
+convert_cel_in_far(){
+    awk -v t="$1" 'BEGIN {printf "%.1f", t*9/5+32}'
 }
+
+convert_far_in_cel(){
+    awk -v t="$1" 'BEGIN {printf "%.1f", (t-32)*5/9}'
+}
+
+while true; do
+    echo "----hello, this is temperatur converter----"
+    echo "1 - if you want converter cel in far"
+    echo "2 - if you converter far in cel"
+    echo "3 - if you want view all temp in cel"
+    echo "4 - if you want view all temp in far"
+    echo "exit - exit program"
+    read -p "enter command " w
+    case "$w" in
+        1)
+            read -p "enter temp " t
+            t=${t/,/.}
+            if ! [[ "$t" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                echo "enter a number"
+                continue
+            fi
+            result=$(convert_cel_in_far "$t")
+            echo "$result"
+            found=0
+            for i in "${cel[@]}"; do
+                if [[ "$i" == "$t" ]]; then
+                    found=1
+                    break
+                fi
+            done
+            if (( found == 0 )); then
+                cel+=("$t")
+                far+=("$result")
+            fi
+            ;;
+        2)
+            read -p "enter temp " t
+            t=${t/,/.}
+            if ! [[ "$t" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                echo "enter a number"
+                continue
+            fi
+            result=$(convert_far_in_cel "$t")
+            echo "$result"
+            found=0
+            for i in "${far[@]}"; do
+                if [[ "$i" == "$t" ]]; then
+                    found=1
+                    break
+                fi
+            done
+            if (( found == 0 )); then
+                far+=("$t")
+                cel+=("$result")
+            fi
+            ;;
+        3)
+            echo "${cel[@]}"
+            ;;
+        4)
+            echo "${far[@]}"
+            ;;
+        exit)
+            break
+            ;;
+        *)
+            echo "unknow command, enter 1,2,3,4 or exit"
+            ;;
+    esac
+done
